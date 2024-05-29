@@ -1,5 +1,9 @@
 <template>
-  <div>
-    <NuxtWelcome />
-  </div>
+  <NuxtLoadingIndicator :throttle="0" />
+  <UContainer>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </UContainer>
+  <UNotifications />
 </template>
