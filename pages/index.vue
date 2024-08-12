@@ -10,7 +10,7 @@
               class="absolute -top-48 -z-10 size-[400px] -rotate-45 rounded-full bg-gradient-to-br from-indigo-300 via-rose-200 to-blue-600 opacity-70 blur-3xl lg:size-[500px]">
             </div>
           </div>
-          <NavBar />
+          <NavigationBar />
           <main class="my-8 flex w-full flex-1 flex-col items-center justify-center gap-8 overflow-x-hidden p-4 pb-12">
             <section class="mt-24 flex flex-col items-center">
               <NuxtLink class="logo-custom" href="/about">

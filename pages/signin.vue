@@ -1,5 +1,5 @@
 <template>
-    <NavBar />
+    <NavigationBar />
     <div
         class="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8 bg-black text-white">
         <div class="mx-auto max-w-md space-y-6 text-center">

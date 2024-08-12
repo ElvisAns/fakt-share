@@ -1,5 +1,5 @@
 <template>
-    <NavBar/>
+    <NavigationBar/>
     <div class="max-w-full py-8 min-h-[100dvh] bg-black text-white px-5 md:px-10 xl:px-24 text-center">
         <div class="pt-20 flex items-center justify-center min-h-[50vh] flex-col pb-20">
             <div class="logo">Fakt Share</div>
