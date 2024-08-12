@@ -5,7 +5,10 @@ import run from "../utils/prompts/gemini.service.faktsgen"
 export default defineEventHandler(async (event) => {
     //admin
     try {
-        const gemini_response = await run();
+        const min = 5;
+        const max = 20;
+        const numberofposts = Math.floor(Math.random() * (max - min + 1)) + min;
+        const gemini_response = await run(numberofposts);
         const new_posts = JSON.parse(gemini_response);
         const db = admin.firestore();
         const batch = db.batch();
@@ -23,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
         try {
             await batch.commit();
-            return 'Batch write successful';
+            return `Batch write successful for ${numberofposts} posts`;
         } catch (error) {
             setResponseStatus(500);
             console.error('Error committing batch write:', error);
