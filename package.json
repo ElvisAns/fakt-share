@@ -27,5 +27,8 @@
   },
   "devDependencies": {
     "@vueuse/nuxt": "^10.11.1"
+  },
+  "engines": {
+    "node": ">=20.11.1"
   }
 }
