@@ -25,6 +25,15 @@
 <script setup>
 import { query, collection, onSnapshot, where, orderBy, doc, getDoc, getDocs } from 'firebase/firestore';
 
+useSeoMeta({
+  title: `View post | Fakt Share`,
+  ogTitle: `View post | Fakt Share`,
+  description: 'Explore fakt share content and have fun while learning through fun facts',
+  ogDescription: 'Explore fakt share content and have fun while learning through fun facts',
+  ogImage: 'https://firebasestorage.googleapis.com/v0/b/faktshare.appspot.com/o/og-image.png?alt=media&token=59cc7e77-f651-42b7-bf48-bc612c31dbdb',
+  twitterCard: 'summary_large_image',
+})
+
 const { $db } = useNuxtApp();
 const route = useRoute();
 definePageMeta({

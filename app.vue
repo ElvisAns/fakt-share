@@ -50,6 +50,16 @@ body {
 
 <script setup>
 import { onAuthStateChanged } from 'firebase/auth';
+
+useSeoMeta({
+  title: 'Welcome | Fakt Share',
+  ogTitle: 'Welcome | Fakt Share ',
+  description: 'Learn while having fun, Fakt Share will make your day by teaching you fun things.',
+  ogDescription: 'Learn while having fun, Fakt Share will make your day by teaching you fun things.',
+  ogImage: 'https://firebasestorage.googleapis.com/v0/b/faktshare.appspot.com/o/og-image.png?alt=media&token=59cc7e77-f651-42b7-bf48-bc612c31dbdb',
+  twitterCard: 'summary_large_image',
+})
+
 const { $auth } = useNuxtApp();
 const userUid = useState("userUid");
 const userInfos = useState("userInfos", () => { return { photoURL: "", displayName: "", email: "" } });

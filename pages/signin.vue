@@ -21,6 +21,14 @@
 </template>
 
 <script setup>
+useSeoMeta({
+  title: 'Signin | Fakt Share',
+  ogTitle: 'Signin | Fakt Share ',
+  description: 'Get access and share your thougts around! explore posts on Fakt Share and have fun!',
+  ogDescription: 'Get access and share your thougts around! explore posts on Fakt Share and have fun!',
+  twitterCard: 'summary_large_image',
+})
+
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { collection, query, where, addDoc, getCountFromServer } from "firebase/firestore";
 

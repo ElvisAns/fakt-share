@@ -167,4 +167,11 @@ const tags = ref(useTags("uselect"));
 definePageMeta({
     layout: 'feed'
 })
+useSeoMeta({
+  title: 'Explore | Fakt Share',
+  ogTitle: 'Explore | Fakt Share ',
+  description: 'Explore posts on Fakt Share and have fun!',
+  ogDescription: 'Explore posts on Fakt Share and have fun!',
+  twitterCard: 'summary_large_image',
+})
 </script>

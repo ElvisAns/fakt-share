@@ -42,4 +42,12 @@ const handleError = () => {
         redirect: '/explore',
     });
 };
+useSeoMeta({
+  title: 'Error | Fakt Share',
+  ogTitle: 'Error | Fakt Share ',
+  description: 'Sorry, Something went wrong',
+  ogDescription: 'Sorry, Something went wrong',
+  ogImage: 'https://firebasestorage.googleapis.com/v0/b/faktshare.appspot.com/o/og-image.png?alt=media&token=59cc7e77-f651-42b7-bf48-bc612c31dbdb',
+  twitterCard: 'summary_large_image',
+})
 </script>

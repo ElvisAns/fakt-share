@@ -79,6 +79,16 @@ const bio = ref('')
 const bioEditable = ref(null)
 const usersExtraInfoDocId = ref(null)
 
+useSeoMeta({
+  title: `Learn about ${route.params.username} | Fakt Share`,
+  ogTitle: `Learn about ${route.params.username} | Fakt Share`,
+  description: 'View fakt share user\'s profile to know what they are sharing',
+  ogDescription: 'View fakt share user\'s profile to know what they are sharing',
+  ogImage: 'https://firebasestorage.googleapis.com/v0/b/faktshare.appspot.com/o/og-image.png?alt=media&token=59cc7e77-f651-42b7-bf48-bc612c31dbdb',
+  twitterCard: 'summary_large_image',
+})
+
+
 const updateBio = () => {
     bio.value = bioEditable.value.innerHTML;
 }
