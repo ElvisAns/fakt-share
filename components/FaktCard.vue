@@ -71,7 +71,7 @@
                   <UIcon class="w-5 h-5" name="i-heroicons-language" />
                   <LoadingSpiner v-if="pendingRequest_translate" class="scale-50" />
                   <span class="ml-1">
-                     {{ hastranslated ? "Original text" : "Translate" }}
+                     {{ hastranslated ? "Original text" : "Translate to French" }}
                   </span>
                </button>
                <div class=" absolute right-0 flex gap-1 -mb-12">
@@ -182,7 +182,7 @@ watch(loggedInUserInfos, (newValue) => {
 const fact_content_updated = ref(props.faktContent); //we will need this for translation
 const browserlanguage = ref('');
 onMounted(() => {
-   browserlanguage.value = navigator.language
+   browserlanguage.value = "fr-FR"; //force language to french not navigator.language
 })
 
 const bookmark_post = async () => {
