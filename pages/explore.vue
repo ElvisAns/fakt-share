@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { collection, where, doc, updateDoc, addDoc, getDoc, getDocs, getCountFromServer, query, onSnapshot, orderBy } from "firebase/firestore";
+import { collection, where, doc, updateDoc, addDoc, getDoc, getDocs, getCountFromServer, query, onSnapshot, orderBy, startAfter, limit as fsLimit } from "firebase/firestore";
 import useTags from "~/composables/tags";
 
 const fakt_feed = ref([]); // we will load here based on post ids load track
@@ -34,30 +34,59 @@ const loading = ref(true)
 
 let post_load_index = ref(0);
 
+let last_loaded_post_ref = ref(null);
+
+const LIMIT = 10;
+
 const { $db } = useNuxtApp();
 var date_format_options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-onMounted(async () => {
-    if (userId.value) { //recommandation system is only for logged in users
-        //alert("logged in")
+
+let unsubscribe = null; // Add this to track the current listener
+
+const loadPosts = async (lastPostId = null) => {
+    // Unsubscribe from previous listener if it exists
+    if (unsubscribe) {
+        unsubscribe();
     }
-    let q = query(collection($db, "posts"), orderBy("createdAt", "desc"));
+    
+    let q = query(collection($db, "posts"), orderBy("createdAt", "desc"), fsLimit(LIMIT));
     const filter = route.query.tag;
+    
     if (filter) {
-        q = query(collection($db, "posts"), where("tag", "==", filter), orderBy("createdAt", "desc"));
+        q = query(collection($db, "posts"), where("tag", "==", filter), orderBy("createdAt", "desc"), fsLimit(LIMIT));
     }
-    onSnapshot(q, (querysnapshot) => {
+    
+    if (lastPostId) {
+        // Get the document reference first
+        const lastDocRef = doc($db, "posts", lastPostId);
+        const lastDocSnap = await getDoc(lastDocRef);
+        
+        if (lastDocSnap.exists()) {
+            q = query(q, startAfter(lastDocSnap));
+        }
+    }
+    
+    unsubscribe = onSnapshot(q, (querysnapshot) => {
         querysnapshot.forEach((doc) => {
             if (!doc.metadata.hasPendingWrites) { //only server changes
                 const entry = doc.data();
+                last_loaded_post_ref.value = doc.id;
                 all_posts[doc.id] = entry; //pass all post to recommandation order them for us
+                console.log(last_loaded_post_ref.value)
             }
         })
         setTimeout(function () {
             loading.value = false;
         }, 1000);
     })
-})
+}
 
+onMounted(async () => {
+    if (userId.value) { //recommandation system is only for logged in users
+        //alert("logged in")
+    }
+    loadPosts();
+})
 
 
 watch(all_posts, async (currentValue) => {
@@ -110,11 +139,11 @@ watch(all_posts, async (currentValue) => {
                 method: "POST",
                 body: { data: recommandation_payload }
             })
-            try{
+            try {
                 const reco = JSON.parse(response);
                 post_ids_load_track.value = reco;
             }
-            catch(error){
+            catch (error) {
                 console.log(error)
             }
         }
@@ -134,7 +163,13 @@ function getNextKeyOrShuffle(obj, currentKey) {
     return shuffledKeys[0];
 }
 
-const load_next_post = ({ post_uid }) => {
+const load_next_post = async ({ post_uid }) => {
+    if (Object.keys(all_posts).length % LIMIT == 0) {
+
+        console.log("Will load next 10 posts");
+        // Use the same loadPosts function with the skip parameter
+        await loadPosts(last_loaded_post_ref.value);
+    }
     const previous_post_id = post_uid;
     let nextPostId = null;
     if (post_ids_load_track.value.length < 1) {
@@ -168,10 +203,17 @@ definePageMeta({
     layout: 'feed'
 })
 useSeoMeta({
-  title: 'Explore | Fakt Share',
-  ogTitle: 'Explore | Fakt Share ',
-  description: 'Explore posts on Fakt Share and have fun!',
-  ogDescription: 'Explore posts on Fakt Share and have fun!',
-  twitterCard: 'summary_large_image',
+    title: 'Explore | Fakt Share',
+    ogTitle: 'Explore | Fakt Share ',
+    description: 'Explore posts on Fakt Share and have fun!',
+    ogDescription: 'Explore posts on Fakt Share and have fun!',
+    twitterCard: 'summary_large_image',
+})
+
+// Clean up listener when component unmounts
+onUnmounted(() => {
+    if (unsubscribe) {
+        unsubscribe();
+    }
 })
 </script>
