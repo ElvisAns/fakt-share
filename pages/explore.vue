@@ -22,14 +22,10 @@ import useTags from "~/composables/tags";
 
 const fakt_feed = ref([]); // we will load here based on post ids load track
 const all_posts = reactive({});
-const post_ids_load_track = ref([]); //this will come straight from the recommandation system and if no watched, we show them in order
 const userId = useCookie('userId'); //we will need userId to query the recommandation system to give us the post ids we will show first
 const route = useRoute();
 
 const userUid = useState("userUid");
-const liked_posts = ref([]);
-const commented_on_posts = ref([]);
-const viewed_post = ref([]); //load from google analytics data
 const loading = ref(true)
 
 let post_load_index = ref(0);
@@ -42,6 +38,8 @@ const { $db } = useNuxtApp();
 var date_format_options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
 
 let unsubscribe = null; // Add this to track the current listener
+
+const load_count = ref(0);
 
 const loadPosts = async (lastPostId = null) => {
     // Unsubscribe from previous listener if it exists
@@ -72,7 +70,7 @@ const loadPosts = async (lastPostId = null) => {
                 const entry = doc.data();
                 last_loaded_post_ref.value = doc.id;
                 all_posts[doc.id] = entry; //pass all post to recommandation order them for us
-                console.log(last_loaded_post_ref.value)
+                load_count.value++;
             }
         })
         setTimeout(function () {
@@ -88,66 +86,16 @@ onMounted(async () => {
     loadPosts();
 })
 
-
-watch(all_posts, async (currentValue) => {
-    if (post_ids_load_track.value.length < 1 && post_load_index.value == 0) { //first load or recommandation system has not yet give the order of loading
-        const [first_id] = Object.keys(currentValue);
-        fakt_feed.value.push({ id: first_id, ...currentValue[first_id] });
-        post_load_index.value++;
-    }
-    if (userId.value) { //only if user is logged in
-        const postids = Object.keys(currentValue);
-        if (postids.length > 0) {
-            //we have some posts
-            const posts_for_recommandation = postids.map((id) => {
-                const post = currentValue[id];
-                let post_content = post.faktContent.substring(0, 80);
-                post_content += "...";
-                return { post_id: id, post_content, tag: post.tag }
-            })
-            const commentedOn = [];
-            const liked = [];
-            const favorites = [];
-
-            const userCommentsQuery = query(collection($db, "comments"), where("user_id", "==", userId.value));
-            const commentsSnapshot = await getDocs(userCommentsQuery);
-            commentsSnapshot.forEach((snapshot) => {
-                const data = snapshot.data();
-                commentedOn.push(data.post_uid);
-            })
-
-            const userLikesQuery = query(collection($db, "likes"), where("user_id", "==", userId.value));
-            const likesSnapshot = await getDocs(userLikesQuery);
-            likesSnapshot.forEach((snapshot) => {
-                const data = snapshot.data();
-                liked.push(data.post_uid);
-            })
-
-            const userfavoritesQuery = query(collection($db, "favorites"), where("user_id", "==", userId.value));
-            const favoritesSnapshot = await getDocs(userfavoritesQuery);
-            favoritesSnapshot.forEach((snapshot) => {
-                const data = snapshot.data();
-                favorites.push(data.post_uid);
-            })
-            const recommandation_payload = {
-                all_posts: posts_for_recommandation,
-                liked_posts: liked,
-                commented_on_posts: commentedOn,
-                favorite_posts: favorites
-            }
-            const response = await $fetch("/api/recommandations", {
-                method: "POST",
-                body: { data: recommandation_payload }
-            })
-            try {
-                const reco = JSON.parse(response);
-                post_ids_load_track.value = reco;
-            }
-            catch (error) {
-                console.log(error)
-            }
-        }
-    }
+// Simplified watch - just add posts to feed as they come in
+watch(all_posts, (currentValue) => {
+    // Get all post IDs that aren't already in the feed
+    const existingIds = fakt_feed.value.map(post => post.id);
+    const newPostIds = Object.keys(currentValue).filter(id => !existingIds.includes(id));
+    
+    // Add new posts to the feed
+    newPostIds.forEach(id => {
+        fakt_feed.value.push({ id, ...currentValue[id] });
+    });
 })
 
 function getNextKeyOrShuffle(obj, currentKey) {
@@ -164,39 +112,24 @@ function getNextKeyOrShuffle(obj, currentKey) {
 }
 
 const load_next_post = async ({ post_uid }) => {
-    if (Object.keys(all_posts).length % LIMIT == 0) {
-
+    if (load_count.value % LIMIT == LIMIT - 1) {
         console.log("Will load next 10 posts");
         // Use the same loadPosts function with the skip parameter
         await loadPosts(last_loaded_post_ref.value);
     }
+    
     const previous_post_id = post_uid;
     let nextPostId = null;
-    if (post_ids_load_track.value.length < 1) {
-        // No recommended posts; load based on all posts
-        nextPostId = getNextKeyOrShuffle(all_posts, previous_post_id);
-    } else {
-        // Use recommendation system's order
-        if (post_load_index.value >= post_ids_load_track.value.length) {
-            post_load_index.value = 0; // Reset index if out of bounds
-        }
-        nextPostId = post_ids_load_track.value[post_load_index.value];
-    }
+    
+    // Use getNextKeyOrShuffle to get the next post from all_posts
+    nextPostId = getNextKeyOrShuffle(all_posts, previous_post_id);
+    
     let post = all_posts[nextPostId];
     if (post) {
         fakt_feed.value.push({ id: nextPostId, ...post });
     } else {
-        // Fallback to loading from all posts if post ID not found in the recommendation list
-        nextPostId = getNextKeyOrShuffle(all_posts, previous_post_id);
-        post = all_posts[nextPostId];
-        if (post) {
-            fakt_feed.value.push({ id: nextPostId, ...post });
-            console.warn(`Post with ID ${nextPostId} not found in recommendations. Loaded from all posts.`);
-        } else {
-            console.error(`Post with ID ${nextPostId} could not be loaded.`);
-        }
+        console.error(`Post with ID ${nextPostId} could not be loaded.`);
     }
-    post_load_index.value++;
 };
 const tags = ref(useTags("uselect"));
 definePageMeta({
