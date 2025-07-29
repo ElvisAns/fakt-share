@@ -1,5 +1,5 @@
 <template>
-   <article class="block" ref="target">
+   <article class="block" ref="target" :id="post_uid">
       <div data-parent="true" class="group p-4 mt-3 rounded-2xl bg-slate-900
                transition-colors duration-100 ease-in-out hover:bg-slate-700/60">
          <div class="flex justify-between items-end gap-1 flex-wrap">
@@ -71,7 +71,15 @@
                   <UIcon class="w-5 h-5" name="i-heroicons-language" />
                   <LoadingSpiner v-if="pendingRequest_translate" class="scale-50" />
                   <span class="ml-1">
-                     {{ hastranslated ? "Original text" : "Translate" }}
+                     {{ hastranslated ? "Original" : "To French" }}
+                  </span>
+               </button>
+               <button :title="`share post`" @click="share_post"
+                  class="pl-2 flex self items-center transition-colors hover:text-slate-400 focus:outline-none">
+                  <UIcon class="w-5 h-5" name="i-heroicons-share" />
+                  <LoadingSpiner v-if="pendingRequest_translate" class="scale-50" />
+                  <span class="ml-1 sr-only md:not-sr-only">
+                     Share
                   </span>
                </button>
                <div class=" absolute right-0 flex gap-1 -mb-12">
@@ -90,6 +98,8 @@
 </template>
 
 <script setup>
+import { formatTimeAgo } from '@vueuse/core'
+
 const emit = defineEmits({
    hasLoadedFakt: ({ post_uid }) => {
       let valid = post_uid !== undefined;
@@ -108,7 +118,20 @@ const props = defineProps({
    post_uid: String,
    createdAt: Object
 })
-const createdAtFormated = ref(useTimeAgo(props.createdAt.toDate().toLocaleString()))
+const createdAtFormated = computed(() => {
+    if (props.createdAt) {
+        // Handle both Firestore Timestamp and cached plain object
+        if (typeof props.createdAt.toDate === 'function') {
+            // Firestore Timestamp object
+            return formatTimeAgo(props.createdAt.toDate());
+        } else if (props.createdAt.seconds) {
+            // Cached object with seconds property
+            const date = new Date(props.createdAt.seconds * 1000);
+            return formatTimeAgo(date);
+        }
+    }
+    return '';
+});
 const comments = ref('...'); //load from firebase
 const likes = ref('...'); //load from firebase
 const views = ref('...'); //load from google analytics
@@ -182,7 +205,7 @@ watch(loggedInUserInfos, (newValue) => {
 const fact_content_updated = ref(props.faktContent); //we will need this for translation
 const browserlanguage = ref('');
 onMounted(() => {
-   browserlanguage.value = navigator.language
+   browserlanguage.value = "fr-FR"; //force language to french not navigator.language
 })
 
 const bookmark_post = async () => {
@@ -301,6 +324,53 @@ const translate_post = async () => {
       catch (error) {
          fact_content_updated.value = "Translation have failed, try again";
          pendingRequest_translate.value = false;
+      }
+   }
+}
+
+const share_post = async () => {
+   const shareText = `${props.faktContent}\n\nCheck out this post on Fakt Share!`;
+   const shareUrl = `${window.location.origin}/post/${props.post_uid}`;
+   
+   const shareData = {
+      title: 'Fakt Share Post',
+      text: shareText,
+      url: shareUrl
+   };
+   
+   try {
+      if (navigator.share) {
+         await navigator.share(shareData);
+         toast.add({ 
+            title: 'Shared!', 
+            description: 'Post shared successfully', 
+            icon: 'i-heroicons-check-circle' 
+         });
+      } else {
+         // Fallback for browsers that don't support Web Share API
+         await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+         toast.add({ 
+            title: 'Copied!', 
+            description: 'Post link copied to clipboard', 
+            icon: 'i-heroicons-clipboard-document' 
+         });
+      }
+   } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback to clipboard if sharing fails
+      try {
+         await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+         toast.add({ 
+            title: 'Copied!', 
+            description: 'Post link copied to clipboard', 
+            icon: 'i-heroicons-clipboard-document' 
+         });
+      } catch (clipboardError) {
+         toast.add({ 
+            title: 'Error!', 
+            description: 'Failed to share post', 
+            icon: 'i-heroicons-exclamation-triangle' 
+         });
       }
    }
 }
