@@ -1,5 +1,5 @@
 <template>
-   <article class="block" ref="target">
+   <article class="block" ref="target" :id="post_uid">
       <div data-parent="true" class="group p-4 mt-3 rounded-2xl bg-slate-900
                transition-colors duration-100 ease-in-out hover:bg-slate-700/60">
          <div class="flex justify-between items-end gap-1 flex-wrap">
@@ -98,6 +98,8 @@
 </template>
 
 <script setup>
+import { formatTimeAgo } from '@vueuse/core'
+
 const emit = defineEmits({
    hasLoadedFakt: ({ post_uid }) => {
       let valid = post_uid !== undefined;
@@ -116,7 +118,20 @@ const props = defineProps({
    post_uid: String,
    createdAt: Object
 })
-const createdAtFormated = ref(useTimeAgo(props.createdAt.toDate().toLocaleString()))
+const createdAtFormated = computed(() => {
+    if (props.createdAt) {
+        // Handle both Firestore Timestamp and cached plain object
+        if (typeof props.createdAt.toDate === 'function') {
+            // Firestore Timestamp object
+            return formatTimeAgo(props.createdAt.toDate());
+        } else if (props.createdAt.seconds) {
+            // Cached object with seconds property
+            const date = new Date(props.createdAt.seconds * 1000);
+            return formatTimeAgo(date);
+        }
+    }
+    return '';
+});
 const comments = ref('...'); //load from firebase
 const likes = ref('...'); //load from firebase
 const views = ref('...'); //load from google analytics
