@@ -71,7 +71,15 @@
                   <UIcon class="w-5 h-5" name="i-heroicons-language" />
                   <LoadingSpiner v-if="pendingRequest_translate" class="scale-50" />
                   <span class="ml-1">
-                     {{ hastranslated ? "Original text" : "Translate to French" }}
+                     {{ hastranslated ? "Original" : "To French" }}
+                  </span>
+               </button>
+               <button :title="`share post`" @click="share_post"
+                  class="pl-2 flex self items-center transition-colors hover:text-slate-400 focus:outline-none">
+                  <UIcon class="w-5 h-5" name="i-heroicons-share" />
+                  <LoadingSpiner v-if="pendingRequest_translate" class="scale-50" />
+                  <span class="ml-1 sr-only md:not-sr-only">
+                     Share
                   </span>
                </button>
                <div class=" absolute right-0 flex gap-1 -mb-12">
@@ -301,6 +309,53 @@ const translate_post = async () => {
       catch (error) {
          fact_content_updated.value = "Translation have failed, try again";
          pendingRequest_translate.value = false;
+      }
+   }
+}
+
+const share_post = async () => {
+   const shareText = `${props.faktContent}\n\nCheck out this post on Fakt Share!`;
+   const shareUrl = `${window.location.origin}/post/${props.post_uid}`;
+   
+   const shareData = {
+      title: 'Fakt Share Post',
+      text: shareText,
+      url: shareUrl
+   };
+   
+   try {
+      if (navigator.share) {
+         await navigator.share(shareData);
+         toast.add({ 
+            title: 'Shared!', 
+            description: 'Post shared successfully', 
+            icon: 'i-heroicons-check-circle' 
+         });
+      } else {
+         // Fallback for browsers that don't support Web Share API
+         await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+         toast.add({ 
+            title: 'Copied!', 
+            description: 'Post link copied to clipboard', 
+            icon: 'i-heroicons-clipboard-document' 
+         });
+      }
+   } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback to clipboard if sharing fails
+      try {
+         await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+         toast.add({ 
+            title: 'Copied!', 
+            description: 'Post link copied to clipboard', 
+            icon: 'i-heroicons-clipboard-document' 
+         });
+      } catch (clipboardError) {
+         toast.add({ 
+            title: 'Error!', 
+            description: 'Failed to share post', 
+            icon: 'i-heroicons-exclamation-triangle' 
+         });
       }
    }
 }
