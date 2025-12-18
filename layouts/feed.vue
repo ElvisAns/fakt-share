@@ -94,9 +94,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="block md:hidden bg-slate-200/50 p-1 fixed bottom-4 right-4 rounded-full">
+                            <!-- Mobile FAB and Slideover -->
+                            <div class="block lg:hidden fixed bottom-6 right-6 z-50">
                                 <UButton color="primary" size="xl"
-                                    class="rounded-full w-12 h-12 flex items-center justify-center"
+                                    class="rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-indigo-500/20"
                                     :icon="sliderIsOpen ? 'i-heroicons-x-mark-20-solid' : 'i-heroicons-plus'"
                                     @click="sliderIsOpen = true">
                                 </UButton>
@@ -107,74 +108,68 @@
                                     <template #header>
                                         <div class="flex items-center justify-between">
                                             <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-                                                Shortcut menu
+                                                Shortcut Menu
                                             </h3>
                                             <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid"
                                                 class="-my-1" @click="sliderIsOpen = false" />
                                         </div>
                                     </template>
-                                    <div class="max-h-[85dvh] overflow-auto shortcut-menu pl-4">
-                                        <div class="pt-4 md:pt-0"> <!--Sticky not working for now-->
-                                            <h2 class="text-xl font-bold">Tags & Topics 🏷️</h2>
-                                            <div class="search-container relative mt-2 mb-12" :key="search_key">
+                                    <div class="max-h-[85dvh] overflow-auto shortcut-menu pl-4 pr-2">
+                                        <!-- Tags & Topics (Mobile) -->
+                                        <div class="pt-4 md:pt-0">
+                                            <h2 class="text-xl font-bold mb-2">Tags & Topics 🏷️</h2>
+                                            <div class="search-container relative mb-6" :key="search_key">
                                                 <VuePredictiveSearch @selected="viewUserSelection"
                                                     inputPlaceholder="Quickly find any tag"
-                                                    inputClasses="block px-5 py-2 w-full rounded-md block"
+                                                    inputClasses="block px-5 py-2 w-full rounded-md"
                                                     :source="tags" label="filter" :fieldsToSearchFrom="['tags']"
                                                     :fieldsToReturnOnMatch="['tags', 'filter']">
                                                     <template #no-element-found>
-                                                        <p class="text-red-400 ">
-                                                            <UIcon name="i-heroicons-exclamation-triangle"></UIcon> Did
-                                                            not find match
+                                                        <p class="text-red-400 flex items-center gap-2">
+                                                            <UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
+                                                            Did not find match
                                                         </p>
                                                     </template>
                                                     <template #item="{ tags, filter }">
-                                                        <div
-                                                            class="item cursor-pointer line-clamp-1 py-1 hover:text-primary-400 transition-all">
+                                                        <div class="item cursor-pointer line-clamp-1 py-1 hover:text-primary-400 transition-all">
                                                             <p>{{ tags }}</p>
                                                         </div>
                                                     </template>
                                                 </VuePredictiveSearch>
                                             </div>
-                                            <div
-                                                class="flex flex-col text-left justify-start mt-5 max-h-[40dvh] overflow-auto gap-2">
+                                            <div class="flex flex-col text-left justify-start gap-2">
+                                                <button class="text-left underline" @click="() => filter_posts()">All</button>
                                                 <button class="text-left underline" v-for="tag in tags"
                                                     :key="tag.filter" @click="() => filter_posts(tag.filter)"> {{
                                                         tag.tags }}</button>
                                             </div>
                                         </div>
-                                        <div class="mt-4">
-                                            <h2 class="text-xl font-bold">Trending 🔥</h2>
-                                            <div
-                                                class="flex flex-col text-left justify-start mt-5 max-h-[20dvh] overflow-auto gap-3">
+                                        <!-- Trending (Mobile) -->
+                                        <div class="mt-8">
+                                            <h2 class="text-xl font-bold mb-2">Trending 🔥</h2>
+                                            <div class="flex flex-col text-left justify-start gap-3 max-h-[20dvh] overflow-auto">
                                                 <NuxtLink class="text-left hover:underline flex gap-2 items-center"
-                                                    v-for="post in trending_fakts" :href="`/posts/${post.id}`">
-                                                    <!--img class="w-20 rounded-md object-cover" :src="post.illustration"-->
+                                                    v-for="post in trending_fakts" :key="post.id" :href="`/posts/${post.id}`">
                                                     <div>
                                                         <p class="line-clamp-2">{{ post.faktContent }}</p>
-                                                        <div
-                                                            class="flex items-center align-center text-center w-full flex-row">
-                                                            <div
-                                                                class="flex border-gray-200 dark:border-gray-800 w-full border-t border-solid">
-                                                            </div>
+                                                        <div class="flex items-center align-center text-center w-full flex-row">
+                                                            <div class="flex border-gray-200 dark:border-gray-800 w-full border-t border-solid"></div>
                                                         </div>
                                                     </div>
                                                 </NuxtLink>
                                                 <LoadingSpiner v-if="loading_trending"></LoadingSpiner>
                                             </div>
-                                            <h2 class="text-xl font-bold mt-10">Bookmark 📝</h2>
-                                            <div
-                                                class="flex flex-col text-left justify-start mt-5 max-h-[20vh] overflow-auto gap-3">
+                                        </div>
+                                        <!-- Bookmarks (Mobile) -->
+                                        <div class="mt-8">
+                                            <h2 class="text-xl font-bold mb-2">Bookmarks 📝</h2>
+                                            <div class="flex flex-col text-left justify-start gap-3 max-h-[20vh] overflow-auto">
                                                 <NuxtLink class="text-left hover:underline flex gap-2 items-center"
-                                                    v-for="post in favorite_fakts" :href="`/posts/${post.post_id}`">
-                                                    <!--img class="w-20 rounded-md object-cover" :src="post.illustration"-->
+                                                    v-for="post in favorite_fakts" :key="post.post_id" :href="`/posts/${post.post_id}`">
                                                     <div>
                                                         <p class="line-clamp-2">{{ post.faktContent }}</p>
-                                                        <div
-                                                            class="flex items-center align-center text-center w-full flex-row">
-                                                            <div
-                                                                class="flex border-gray-200 dark:border-gray-800 w-full border-t border-solid">
-                                                            </div>
+                                                        <div class="flex items-center align-center text-center w-full flex-row">
+                                                            <div class="flex border-gray-200 dark:border-gray-800 w-full border-t border-solid"></div>
                                                         </div>
                                                     </div>
                                                 </NuxtLink>
@@ -329,5 +324,13 @@ watch(() => route.fullPath, () => {
 
 .search-container ul:empty {
     display: none;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 8px;
 }
 </style>
