@@ -1,23 +1,24 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = "gemini-2.5-flash-lite";
 const API_KEY = process.env.GOOGLE_GEMINI_API_KEY;
 
-async function execute(parts) {
-    const generationConfig = {
-        temperature: 0.9,
-        topK: 80, //higher the value, random will the response be
-        topP: 1,
-        maxOutputTokens: 2048,
-    };
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    const result = await model.generateContent({
-        contents: [{ role: "user", parts }],
-        generationConfig
+async function execute(content) {
+    const ai = new GoogleGenAI({ apiKey: API_KEY });
+
+    const result = await ai.models.generateContent({
+        model: MODEL_NAME,
+        contents: content,
+        config: {
+            temperature: 0.9,
+            topK: 80,
+            topP: 1,
+            maxOutputTokens: 2048,
+        }
     });
-    const response = result.response.text();
-    
+
+    const response = result.text;
+
     const index1 = response.indexOf("```json");
     if(index1 !== 0 ){
         return response;

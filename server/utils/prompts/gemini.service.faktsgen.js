@@ -1,9 +1,7 @@
 import execute from "../gemini.wrapper";
 
 async function run(number, category = null, existingContent = []) {
-    const parts = [
-        {
-            text: `I am building a social media platform called FaktShare, where you are my content generation engine.
+    const content = `I am building a social media platform called FaktShare, where you are my content generation engine.
             FaktShare is a social learning platform that combines the fun of sharing facts with the convenience of a social media interface.
             Here are examples of fun facts:
             1. "Did you know? Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly edible!"
@@ -19,11 +17,9 @@ async function run(number, category = null, existingContent = []) {
             ${existingContent.join(', ')}
 
             Please ensure the new content is unique and does not repeat any of the existing facts. Also, use standard HTML entities to encode emojis.
-            `
-        }
-    ];
+            `;
 
-    const response = await execute(parts);
+    const response = await execute(content);
     return response;
 }
 

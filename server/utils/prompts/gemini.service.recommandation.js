@@ -1,7 +1,6 @@
 import execute from "../gemini.wrapper";
 async function run(data) {
-    const parts = [
-        { text: `You act as my recommendation engine for my social media. I will give you data representing my past interaction with posts.
+    const content = `You act as my recommendation engine for my social media. I will give you data representing my past interaction with posts.
             The information I will give you is in json format. You will return ids of posts I would like to see in order so that i can be more engaged, from the most interesting at the beginning to the least interesting.
             For posts I will give you the post id, first 80 characters max of the post content and the post tag.
             For my interaction, I will give you the ids of posts I have previously commented on or liked then also posts that i have saved as my favorites.
@@ -25,11 +24,9 @@ async function run(data) {
             Note :
             - The number of posts returned must be equal to the number of posts available.
             - Post content can be in a different language and you should be able to understand the content regardless of the language
-            `}, {
-            text : `My informations : ${JSON.stringify(data)}`
-        }
-    ];
-    const response = await execute(parts)
+            My informations : ${JSON.stringify(data)}`;
+
+    const response = await execute(content);
     return response;
 }
 
