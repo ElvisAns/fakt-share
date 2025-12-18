@@ -204,11 +204,12 @@ const signin = () => {
     signInWithPopup($auth, provider).then(async (result) => {
         userId.value = result.user.uid;
         const { photoURL, displayName, email, uid } = result.user;
-        const username = useUsernameExtractor(email);
+        let username = email.split('@')[0];
+        username = `@${username}`;
         const userQuery = query(collection($db, "usersExtraInfo"), where("userId", "==", userId.value));
         const querySnapshot = await getCountFromServer(userQuery);
         if (querySnapshot.data().count == 0) {
-            await addDoc(collection($db, "usersExtraInfo"), { userId: uid, photoURL, displayName, email, username: username.value, certified: false, bio: "" });
+            await addDoc(collection($db, "usersExtraInfo"), { userId: uid, photoURL, displayName, email, username: username, certified: false, bio: "" });
         }
         await navigateTo("/explore");
     }).catch((error) => {
