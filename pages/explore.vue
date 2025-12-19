@@ -10,7 +10,7 @@
             <UIcon name="i-heroicons-exclamation-triangle"></UIcon> Ahw! please come back later, we promise to have some
             content for you
         </p>
-        <FaktCard v-for="(fakt, index) in fakt_feed" :createdAt="fakt.createdAt" :key="index" :userId="fakt.userId"
+        <FaktCard v-for="(fakt, index) in fakt_feed" :createdAt="fakt.createdAt" :key="fakt.id" :userId="fakt.userId"
             :faktContent="fakt.faktContent" :illustration="fakt.illustration" :tag="fakt.tag" :post_uid="fakt.id"
             @hasLoadedFakt="load_next_post" />
     </div>
@@ -40,43 +40,83 @@ var date_format_options = { weekday: 'long', year: 'numeric', month: 'short', da
 let unsubscribe = null; // Add this to track the current listener
 
 const load_count = ref(0);
+const is_loading_more = ref(false);
+const has_more_posts = ref(true);
 
 const loadPosts = async (lastPostId = null) => {
+    // Prevent multiple simultaneous loads
+    if (is_loading_more.value) return;
+    
+    is_loading_more.value = true;
+    
     // Unsubscribe from previous listener if it exists
     if (unsubscribe) {
         unsubscribe();
     }
     
-    let q = query(collection($db, "posts"), orderBy("createdAt", "desc"), fsLimit(LIMIT));
     const filter = route.query.tag;
+    let q;
     
+    // Build the base query
     if (filter) {
-        q = query(collection($db, "posts"), where("tag", "==", filter), orderBy("createdAt", "desc"), fsLimit(LIMIT));
+        q = query(
+            collection($db, "posts"), 
+            where("tag", "==", filter), 
+            orderBy("createdAt", "desc")
+        );
+    } else {
+        q = query(
+            collection($db, "posts"), 
+            orderBy("createdAt", "desc")
+        );
     }
     
+    // Add pagination if we have a last post
     if (lastPostId) {
-        // Get the document reference first
         const lastDocRef = doc($db, "posts", lastPostId);
         const lastDocSnap = await getDoc(lastDocRef);
         
         if (lastDocSnap.exists()) {
-            q = query(q, startAfter(lastDocSnap));
+            q = query(q, startAfter(lastDocSnap), fsLimit(LIMIT));
+        } else {
+            q = query(q, fsLimit(LIMIT));
         }
+    } else {
+        q = query(q, fsLimit(LIMIT));
     }
     
     unsubscribe = onSnapshot(q, (querysnapshot) => {
+        if (querysnapshot.empty) {
+            has_more_posts.value = false;
+            is_loading_more.value = false;
+            loading.value = false;
+            return;
+        }
+        
+        let newPostsAdded = 0;
         querysnapshot.forEach((doc) => {
             if (!doc.metadata.hasPendingWrites) { //only server changes
-                const entry = doc.data();
-                last_loaded_post_ref.value = doc.id;
-                all_posts[doc.id] = entry; //pass all post to recommandation order them for us
-                load_count.value++;
+                // Check if post already exists
+                if (!all_posts[doc.id]) {
+                    const entry = doc.data();
+                    last_loaded_post_ref.value = doc.id;
+                    all_posts[doc.id] = entry;
+                    load_count.value++;
+                    newPostsAdded++;
+                }
             }
-        })
+        });
+        
+        // If we got fewer posts than the limit, there are no more posts
+        if (querysnapshot.size < LIMIT) {
+            has_more_posts.value = false;
+        }
+        
         setTimeout(function () {
             loading.value = false;
-        }, 1000);
-    })
+            is_loading_more.value = false;
+        }, 500);
+    });
 }
 
 onMounted(async () => {
@@ -112,9 +152,13 @@ function getNextKeyOrShuffle(obj, currentKey) {
 }
 
 const load_next_post = async ({ post_uid }) => {
-    if (load_count.value % LIMIT == LIMIT - 1) {
-        console.log("Will load next 10 posts");
-        // Use the same loadPosts function with the skip parameter
+    // Find the index of the current post in the feed
+    const currentIndex = fakt_feed.value.findIndex(post => post.id === post_uid);
+    const remainingPosts = fakt_feed.value.length - currentIndex;
+    
+    // Load more when we're 3 posts away from the end
+    if (remainingPosts <= 3 && has_more_posts.value && !is_loading_more.value) {
+        console.log("Loading next batch of posts...");
         await loadPosts(last_loaded_post_ref.value);
     }
     
@@ -125,12 +169,11 @@ const load_next_post = async ({ post_uid }) => {
     nextPostId = getNextKeyOrShuffle(all_posts, previous_post_id);
     
     let post = all_posts[nextPostId];
-    if (post) {
+    if (post && !fakt_feed.value.find(p => p.id === nextPostId)) {
         fakt_feed.value.push({ id: nextPostId, ...post });
-    } else {
-        console.error(`Post with ID ${nextPostId} could not be loaded.`);
     }
 };
+
 const tags = ref(useTags("uselect"));
 definePageMeta({
     layout: 'feed'
