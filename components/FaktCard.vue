@@ -330,7 +330,7 @@ const translate_post = async () => {
 
 const share_post = async () => {
    const shareText = `${props.faktContent}\n\nCheck out this post on Fakt Share!`;
-   const shareUrl = `${window.location.origin}/post/${props.post_uid}`;
+   const shareUrl = `${window.location.origin}/posts/${props.post_uid}`;
    
    const shareData = {
       title: 'Fakt Share Post',
