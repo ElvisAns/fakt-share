@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-slate-950 bg-center bg-repeat font-sans text-slate-50 antialiased">
+    <div class="feed-page bg-slate-950 bg-center bg-repeat font-sans text-slate-50 antialiased">
         <div class="flex min-h-screen flex-col">
             <main class="flex-grow">
                 <div class="fixed right-0">
@@ -13,12 +13,14 @@
                     <NavigationBar />
                     <main class="my-8 flex w-full flex-1 flex-col overflow-x-hidden">
                         <section class="pt-5">
-                            <div
-                                class="bg-slate-950 bg-center bg-repeat font-sans text-slate-50 flex flex-col gap-4 md:flex-row lg:flex-row px-4 min-h-screen">
+                            <div class="feed-grid bg-center bg-repeat font-sans text-slate-50 flex flex-col gap-4 md:flex-row lg:flex-row px-4 min-h-screen">
                                 <div
-                                    class="w-full md:w-1/3 p-4 lg:p-8 mb-4 lg:mb-0 md:border-r-lime-50/20 md:border-r hidden md:block">
+                                    class="side-panel panel-tags w-full md:w-1/3 p-4 lg:p-8 mb-4 lg:mb-0 hidden md:block">
                                     <div class="pt-4 md:pt-1"> <!--Sticky not working for now-->
-                                        <h2 class="text-xl font-bold">Tags & Topics 🏷️</h2>
+                                        <h2 class="feed-heading text-xl font-bold">
+                                            <UIcon name="i-heroicons-hashtag" class="h-5 w-5 text-cyan-300" />
+                                            <span>Tags & Topics</span>
+                                        </h2>
                                         <div class="search-container relative mt-2 mb-12" :key="search_key">
                                             <VuePredictiveSearch @selected="viewUserSelection"
                                                 inputPlaceholder="Quickly find any tag"
@@ -40,10 +42,10 @@
                                             </VuePredictiveSearch>
                                         </div>
                                         <div
-                                            class="flex flex-col text-left justify-start mt-5 max-h-[20vh]  md:max-h-[70vh] overflow-auto gap-2">
+                                            class="custom-scrollbar flex flex-col text-left justify-start mt-5 max-h-[20vh] md:max-h-[70vh] overflow-auto gap-2 pr-2">
                                             <button @click="() => filter_posts()"
-                                                class="text-left underline">All</button>
-                                            <button class="text-left underline" v-for="tag in tags" :key="tag.filter"
+                                                class="tag-chip text-left">All</button>
+                                            <button class="tag-chip text-left" v-for="tag in tags" :key="tag.filter"
                                                 @click="() => filter_posts(tag.filter)">
                                                 {{ tag.tags }}</button>
                                         </div>
@@ -51,16 +53,19 @@
                                     </div>
                                 </div>
                                 <div v-if="showMiddlePart"
-                                    class="w-full lg:w-1/2 pt-8 md:pt-8 lg:px-8 mb-4 lg:mb-0 lg:mx-4 md:mt-0 pr-0 max-h-none md:max-h-[90dvh] overflow-auto"
+                                    class="middle-panel w-full lg:w-1/2 pt-8 md:pt-8 lg:px-8 mb-4 lg:mb-0 lg:mx-4 md:mt-0 pr-0 max-h-none md:max-h-[90dvh] overflow-auto"
                                     id="middlepart">
                                     <slot></slot>
                                 </div>
                                 <div
-                                    class="w-full md:w-1/3 p-4 lg:p-8 mb-4 lg:mb-0 md:border-l-lime-50/20 md:border-l hidden md:block">
-                                    <h2 class="text-xl font-bold md:pt-1">Trending 🔥</h2>
+                                    class="side-panel panel-trending w-full md:w-1/3 p-4 lg:p-8 mb-4 lg:mb-0 hidden md:block">
+                                    <h2 class="feed-heading text-xl font-bold md:pt-1">
+                                        <UIcon name="i-heroicons-fire" class="h-5 w-5 text-amber-300" />
+                                        <span>Trending</span>
+                                    </h2>
                                     <div
-                                        class="flex flex-col text-left justify-start mt-5 max-h-[22vh]  md:max-h-[70vh] overflow-auto gap-3">
-                                        <NuxtLink class="text-left hover:underline flex gap-2 items-stretch"
+                                        class="custom-scrollbar flex flex-col text-left justify-start mt-5 max-h-[22vh] md:max-h-[70vh] overflow-auto gap-3 pr-2">
+                                        <NuxtLink class="feed-mini-card text-left flex gap-2 items-stretch"
                                             v-for="post in trending_fakts" :href="`/posts/${post.id}`">
                                             <!--img class="w-20 rounded-md object-cover" :src="post.illustration"-->
                                             <div>
@@ -74,11 +79,14 @@
                                         </NuxtLink>
                                         <LoadingSpiner v-if="loading_trending"></LoadingSpiner>
                                     </div>
-                                    <h2 class="text-xl font-bold mt-10">Bookmark 📝</h2>
+                                    <h2 class="feed-heading text-xl font-bold mt-10">
+                                        <UIcon name="i-heroicons-bookmark-square" class="h-5 w-5 text-emerald-300" />
+                                        <span>Bookmarks</span>
+                                    </h2>
                                     <div
-                                        class="flex flex-col text-left justify-start mt-5 max-h-[22vh] md:max-h-[70vh] overflow-auto gap-3">
+                                        class="custom-scrollbar flex flex-col text-left justify-start mt-5 max-h-[22vh] md:max-h-[70vh] overflow-auto gap-3 pr-2">
 
-                                        <NuxtLink class="text-left hover:underline flex gap-2 items-stretch"
+                                        <NuxtLink class="feed-mini-card text-left flex gap-2 items-stretch"
                                             v-for="post in favorite_fakts" :href="`/posts/${post.post_id}`">
                                             <!--img class="w-20 rounded-md object-cover" :src="post.illustration"-->
                                             <div>
@@ -97,7 +105,7 @@
                             <!-- Mobile FAB and Slideover -->
                             <div class="block lg:hidden fixed bottom-6 right-6 z-50">
                                 <UButton color="primary" size="xl"
-                                    class="rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-indigo-500/20"
+                                    class="rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-cyan-500/30 ring-1 ring-white/20"
                                     :icon="sliderIsOpen ? 'i-heroicons-x-mark-20-solid' : 'i-heroicons-plus'"
                                     @click="sliderIsOpen = true">
                                 </UButton>
@@ -107,7 +115,8 @@
                                     :ui="{ body: { base: 'flex-1' }, ring: '', divide: 'divide-y divide-gray-100 dark:divide-gray-800' }">
                                     <template #header>
                                         <div class="flex items-center justify-between">
-                                            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+                                            <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white flex items-center gap-2">
+                                                <UIcon name="i-heroicons-squares-2x2" class="h-5 w-5" />
                                                 Shortcut Menu
                                             </h3>
                                             <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark-20-solid"
@@ -117,7 +126,10 @@
                                     <div class="max-h-[85dvh] overflow-auto shortcut-menu pl-4 pr-2">
                                         <!-- Tags & Topics (Mobile) -->
                                         <div class="pt-4 md:pt-0">
-                                            <h2 class="text-xl font-bold mb-2">Tags & Topics 🏷️</h2>
+                                            <h2 class="feed-heading text-xl font-bold mb-2">
+                                                <UIcon name="i-heroicons-hashtag" class="h-5 w-5 text-cyan-400" />
+                                                <span>Tags & Topics</span>
+                                            </h2>
                                             <div class="search-container relative mb-6" :key="search_key">
                                                 <VuePredictiveSearch @selected="viewUserSelection"
                                                     inputPlaceholder="Quickly find any tag"
@@ -138,17 +150,20 @@
                                                 </VuePredictiveSearch>
                                             </div>
                                             <div class="flex flex-col text-left justify-start gap-2">
-                                                <button class="text-left underline" @click="() => filter_posts()">All</button>
-                                                <button class="text-left underline" v-for="tag in tags"
+                                                <button class="tag-chip text-left" @click="() => filter_posts()">All</button>
+                                                <button class="tag-chip text-left" v-for="tag in tags"
                                                     :key="tag.filter" @click="() => filter_posts(tag.filter)"> {{
                                                         tag.tags }}</button>
                                             </div>
                                         </div>
                                         <!-- Trending (Mobile) -->
                                         <div class="mt-8">
-                                            <h2 class="text-xl font-bold mb-2">Trending 🔥</h2>
-                                            <div class="flex flex-col text-left justify-start gap-3 max-h-[20dvh] overflow-auto">
-                                                <NuxtLink class="text-left hover:underline flex gap-2 items-center"
+                                            <h2 class="feed-heading text-xl font-bold mb-2">
+                                                <UIcon name="i-heroicons-fire" class="h-5 w-5 text-amber-300" />
+                                                <span>Trending</span>
+                                            </h2>
+                                            <div class="custom-scrollbar flex flex-col text-left justify-start gap-3 max-h-[20dvh] overflow-auto pr-2">
+                                                <NuxtLink class="feed-mini-card text-left flex gap-2 items-center"
                                                     v-for="post in trending_fakts" :key="post.id" :href="`/posts/${post.id}`">
                                                     <div>
                                                         <p class="line-clamp-2">{{ post.faktContent }}</p>
@@ -162,9 +177,12 @@
                                         </div>
                                         <!-- Bookmarks (Mobile) -->
                                         <div class="mt-8">
-                                            <h2 class="text-xl font-bold mb-2">Bookmarks 📝</h2>
-                                            <div class="flex flex-col text-left justify-start gap-3 max-h-[20vh] overflow-auto">
-                                                <NuxtLink class="text-left hover:underline flex gap-2 items-center"
+                                            <h2 class="feed-heading text-xl font-bold mb-2">
+                                                <UIcon name="i-heroicons-bookmark-square" class="h-5 w-5 text-emerald-300" />
+                                                <span>Bookmarks</span>
+                                            </h2>
+                                            <div class="custom-scrollbar flex flex-col text-left justify-start gap-3 max-h-[20vh] overflow-auto pr-2">
+                                                <NuxtLink class="feed-mini-card text-left flex gap-2 items-center"
                                                     v-for="post in favorite_fakts" :key="post.post_id" :href="`/posts/${post.post_id}`">
                                                     <div>
                                                         <p class="line-clamp-2">{{ post.faktContent }}</p>
@@ -294,6 +312,88 @@ watch(() => route.fullPath, () => {
 </script>
 
 <style>
+.feed-page {
+    background-image:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.12), transparent 45%),
+        radial-gradient(circle at 100% 0%, rgba(251, 113, 133, 0.1), transparent 40%),
+        linear-gradient(180deg, rgba(2, 6, 23, 0.95) 0%, rgba(15, 23, 42, 1) 100%);
+}
+
+.feed-grid {
+    position: relative;
+}
+
+.feed-grid::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+    background-size: 38px 38px;
+    opacity: 0.22;
+}
+
+.side-panel {
+    position: relative;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 18px;
+    background: linear-gradient(160deg, rgba(15, 23, 42, 0.85), rgba(2, 6, 23, 0.88));
+    backdrop-filter: blur(6px);
+}
+
+.panel-tags::before,
+.panel-trending::before {
+    content: "";
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.45), transparent);
+}
+
+.middle-panel {
+    border-radius: 18px;
+}
+
+.feed-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: 0.01em;
+}
+
+.tag-chip {
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 10px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.92rem;
+    color: rgba(226, 232, 240, 0.96);
+    background: rgba(30, 41, 59, 0.4);
+    transition: all 180ms ease;
+}
+
+.tag-chip:hover {
+    border-color: rgba(103, 232, 249, 0.5);
+    background: rgba(14, 116, 144, 0.2);
+    transform: translateX(2px);
+}
+
+.feed-mini-card {
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 12px;
+    padding: 0.6rem 0.7rem;
+    background: rgba(15, 23, 42, 0.7);
+    transition: all 180ms ease;
+}
+
+.feed-mini-card:hover {
+    border-color: rgba(94, 234, 212, 0.48);
+    background: rgba(15, 23, 42, 0.95);
+    transform: translateY(-1px);
+}
+
 @font-face {
     font-family: 'Pink Sunday';
     src: local('Pink Sunday'), url('@/assets/PinkySunday.ttf') format('truetype');
@@ -325,12 +425,24 @@ watch(() => route.fullPath, () => {
 .search-container ul:empty {
     display: none;
 }
+
 .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
     background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #334155;
     border-radius: 8px;
+}
+
+@media (max-width: 767px) {
+    .middle-panel {
+        border-radius: 0;
+    }
+
+    .feed-grid::before {
+        opacity: 0.15;
+    }
 }
 </style>
