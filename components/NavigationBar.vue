@@ -2,10 +2,11 @@
     <nav
         class="fixed top-0 z-20 flex w-full justify-end md:justify-center gap-2 border-b border-slate-200/10 bg-slate-950/20 p-4 shadow-2xl backdrop-blur-md">
         <div class="hidden md:flex gap-2">
-            <NavButton text="Home" link="/" />
-            <NavButton text="Explore" link="/explore" />
-            <NavButton v-if="!userId" text="Signin" link="/signin" />
-            <NavButton v-if="userId" text="Profile" :link="profile_link" v-show="userInfos.email" />
+            <NavButton text="Home" link="/" icon="i-heroicons-home" />
+            <NavButton text="Explore" link="/explore" icon="i-heroicons-book-open" />
+            <NavButton v-if="!userId" text="Signin" link="/signin" icon="i-heroicons-arrow-right-on-rectangle" />
+            <NavButton v-if="userId" text="Profile" :link="profile_link" v-show="userInfos.email"
+                icon="i-heroicons-user-circle" />
         </div>
         <div class="relative block md:hidden">
             <UIcon class="w-8 h-8" name="i-heroicons-bars-3-bottom-right" :class="!toggle_menu ? 'block' : 'hidden'"
@@ -14,10 +15,12 @@
                 @click="toggle_menu = !toggle_menu"></UIcon>
             <div class="absolute right-0 pl-4 mt-2 pr-10 py-2 bg-slate-50 rounded-lg"
                 :class="toggle_menu ? 'block' : 'hidden'">
-                <NavButtonWhite text="Home" link="/" />
-                <NavButtonWhite text="Explore" link="/explore" />
-                <NavButtonWhite v-if="!userId" text="Signin" link="/signin" />
-                <NavButtonWhite v-if="userId" text="Profile" :link="profile_link" v-show="userInfos.email" />
+                <NavButtonWhite text="Home" link="/" icon="i-heroicons-home" />
+                <NavButtonWhite text="Explore" link="/explore" icon="i-heroicons-book-open" />
+                <NavButtonWhite v-if="!userId" text="Signin" link="/signin"
+                    icon="i-heroicons-arrow-right-on-rectangle" />
+                <NavButtonWhite v-if="userId" text="Profile" :link="profile_link" v-show="userInfos.email"
+                    icon="i-heroicons-user-circle" />
             </div>
         </div>
     </nav>
