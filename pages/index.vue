@@ -119,38 +119,38 @@
             <section class="mt-20 w-full max-w-4xl">
               <h3 class="text-2xl font-bold text-center mb-8">Explore Diverse Topics</h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                <NuxtLink to="/explore?tag=science" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🔬</div>
                   <div class="text-sm font-medium">Science</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=technology" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">💻</div>
                   <div class="text-sm font-medium">Technology</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=history" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🏛️</div>
                   <div class="text-sm font-medium">History</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=geography" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🌍</div>
                   <div class="text-sm font-medium">Geography</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=art" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🎨</div>
                   <div class="text-sm font-medium">Art</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=music" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🎵</div>
                   <div class="text-sm font-medium">Music</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=food" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🍕</div>
                   <div class="text-sm font-medium">Food</div>
-                </div>
-                <div class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors">
+                </NuxtLink>
+                <NuxtLink to="/explore?tag=space" class="bg-slate-900 p-4 rounded-lg text-center hover:bg-slate-800 transition-colors block">
                   <div class="text-orange-500 mb-2">🚀</div>
                   <div class="text-sm font-medium">Space</div>
-                </div>
+                </NuxtLink>
               </div>
             </section>
 
